@@ -1,0 +1,29 @@
+git init --> 저장소 선언
+파일 생성 + 수정
+git status --> 빨간색 (untracked)
+git add 파일제목.txt
+git status (staged 상태 확인 ) --> staged = 녹색!
+git commit -m "메시지"
+git log
+git remote add origin 주소
+
+remote = local 저장소와 github를 연결 < pull >
+git clone 주소 --> 복사 (hub --> 다른 local ) <push>
+
+--------------------------------------------------------------------
+
+브랜치 생성
+git branch <생성할 브랜치명>
+git checkout -b <생성할 브랜치명> == 브랜치를 생성하고 이동
+
+브랜치 이동
+git checkout  < 이동할 브랜치명 >
+
+브랜치 병합
+
+git merge (병합할 branch이름)
+
+## 브랜치 병합하기전에 그 앞단계의 브랜치 or main으로 이동한 후 병합
+
+병합 이후에는
+git branch -D < 브랜치명 > 을 통해서 삭제해야한다.
