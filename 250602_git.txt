@@ -9,6 +9,7 @@ git remote add origin 주소
 
 remote = local 저장소와 github를 연결 < pull >
 git clone 주소 --> 복사 (hub --> 다른 local ) <push>
+git push origin master --> 파일 수정후 git hub에 올리는 방법
 
 --------------------------------------------------------------------
 
