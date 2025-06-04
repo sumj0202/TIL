@@ -1,0 +1,6 @@
+6월 4일 git 복습
+git status
+git add 250604_git.txt
+git commit "메시지"
+git push origin master
+--> git hub reposit에 업데이트(추가)
