@@ -123,4 +123,23 @@ print(rmse)
 
 --> rmse는 오차율 , 정답의 값 그리고 상황에 따라 오차율이 큰지 작은지 확인할 수 있음.
 
+6-1 SHAP 분석
+SHAP --> 정답예측에 대한 각 컬럼별 관계를 알기 위한 도구
+
+1. 필요 라이브러리 임폴트
+import shap
+shap.initjs() --> shap 시각화를 위해 javascript 라이브러리 설정.
+
+2. 적합한 설명모델 생성
+explainer = shap.TreeExplainer(best_dt1)
+
+3. shap value 계산
+shap_values = explainer(X_train)
+
+4. 각 컬럼별 중요도와 영향력 시각화
+shap.summary_plot(shap_values)
+
+5. 개별 데이터에 대한 컬럼별 중요도와 영향력 시각화
+shap.plots.waterfall(shap_values[0])
+--> 개별 데이터중 첫번째 데이터의 자료 시각화
 
