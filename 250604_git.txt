@@ -4,3 +4,9 @@ git add 250604_git.txt
 git commit "메시지"
 git push origin master
 --> git hub reposit에 업데이트(추가)
+
+git push origin --delete [브랜치명]
+---> git hub (원격 저장소) 에 있는 브랜치 삭제 명령어
+
+git push origin branch명
+--> 브랜치 생성
