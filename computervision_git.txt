@@ -1,0 +1,54 @@
+computervision --> 딥러닝에 있는 이미지 학습
+
+deep running = 스스로 특성을 찾아내서 출력하여 정답을 찾는다.
+
+perceptron --> 인공뉴런, 논리회로
+: 다수의 입력 신호를 받아, 하나의 신호를 출력한다.
+
+ - 가중치 --> 뉴런의 출력 신호를 낼지 말지를 결정하기 위해 입력 신호에 곱하는 계수
+--> 결정하는 기준 = 특정 임계 값
+
+Computer Vision
+ --> 이미지 데이터에서 특징 추출 학습, 이를 바탕으로 이미지 분류
+
+Image Classification = 이미지내의 물체를 인식하여 해당 물체의 종류를 분류하는 task
+Segmentation = pixel 단위로 Objection Detection 수행
+ 물체의 영역을 구별하는 task
+
+위 2개를 중점으로 공부
+Objection Detection 이미지내의 물체 분류 + 물체의 위치를 예측하여 바운딩 박스로 알려주는 task
+
+이미지
+흑백 : 명암 표시 (2차원) 컬러 : R, G, B 기본(3차원)
+(행, 열, 깊이) 순으로 표기
+
+기본단위 : Pixel, 0~255 사이의 숫자로 존재
+
+PIL 라이브러리
+이미지를 분석하고 처리하는 python 라이브러리
+
+임폴트 함수
+from PIL import Image
+import matplotlib.pyplot as plt
+
+이미지 읽기(정보 출력)
+img = Image.open(file_path)
+
+plt.imshow(img)
+plt.show()
+
+이미지 해상도 조절
+img.resize((가로, 세로))
+
+이미지 저장
+image.save(경로)
+
+CNN(Convolutional Neural Network) --> 실무에서는 이제 잘 안쓰임.
+
+특징추출
+합성곱 계층 : 합성곱 연산
+풀링 계층 : 풀리 연산
+" Feature "
+
+Fully Connected Layer (완전 연결 계층) --> 물체 분류(정답 출력)
+
