@@ -143,3 +143,33 @@ shap.summary_plot(shap_values)
 shap.plots.waterfall(shap_values[0])
 --> 개별 데이터중 첫번째 데이터의 자료 시각화
 
+6월5일 머신러닝 복습 -----------------------------------------
+lgbm  = LGBMRegressor(random_state=0,
+                      bagging_seed=0,
+                      feature_fraction_seed=0,
+                      data_random_seed=0,
+                      drop_seed=0,
+                      verbose=-1)
+lgbm hyperparameter 저장.
+
+lgbm 과 xgboost
+
+lgbm은 알아서 가지치기를 함으로써, 학습할 때 과적합을 방지해준다.
+그리고 속도도 2~3배 정도 xgboost 보다 빠르다.
+
+**Logistic Regression**
+회귀를 이용한 분류이다.
+분류를 축에 수직인 선으로 하는게 아니라,
+회귀를 통해 만든 직선을 경계로 분류하는 것이다.
+이 직선을 결정 경계라고한다.
+
+임폴트 함수
+from sklearn.linear_model import LogisticRegression
+
+logistic = LogisticRegression(hyperparameter)
+
+모델 학습..
+fit(X_train, y_train)
+예측..
+predict
+
