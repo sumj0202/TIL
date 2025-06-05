@@ -1,0 +1,11 @@
+6월 5일
+github에 친숙해지기 위해서 절차반복학습
+1. add 파일
+2. commit -m
+3. push origin master
+4. branch 생성
+5. branch에 파일 add
+6. push origin branch
+7. branch 병합
+8. branch 제거
+9. 다시 한 번 push origin master
