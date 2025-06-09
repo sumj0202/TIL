@@ -52,3 +52,153 @@ CNN(Convolutional Neural Network) --> 실무에서는 이제 잘 안쓰임.
 
 Fully Connected Layer (완전 연결 계층) --> 물체 분류(정답 출력)
 
+tensorflow.keras 에서 제공하는 MNIST dataset 이용하여 
+KNN 모델로 이미지 분류 실습..
+
+*** 여기서 중요한건 KNN모델이 아닌, 손실함수이다.
+KNN 모델은 이제는 거의 쓰이지 않음.
+***
+
+먼저 tensorflow.keras의 MNIST dataset 다운로드
+
+import tensorflow.keras as tf
+import numpy as np
+
+# MNIST dataset 제공 함수 호출, 다운로드 실행
+(X_train, y_train), (X_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+-->> MNIST dataset 다운로드 완료
+
+분류 과정
+1. 데이터 전처리
+ -> 손글씨 이미지 모양 변경 --> 2차원 -> 3차원(차원확장)
+
+np.expand_dims() 함수 사용..
+X_train1 = np.expand_dims(X_train, axis=-1)
+X_test1 = np.expand_dims(X_test, axis=-1)
+
+ -> normalizing pixel values of an image
+이미지의 픽셀 값을 0~1사이로 변경
+원래는 픽셀값 (0~255) 사이의 숫자..
+  normalizing 의 문제점 --> 숫자 크기의 차이로 인해 학습시 왜곡 발생
+
+X_train2 = X_train1/255
+X_test2 = X_test1/255
+
+2. 학습용/ 검증용 데이터 생성
+
+= 함수 임폴트
+from sklearn.model_selection import train_test_split
+
+train_X, val_X, train_y, val_y = train_test_split(X_train2,y_train,test_size=0.2,random_state=0, stratify=y_train)
+
+3. CNN 모델 생성
+
+def create_model():
+    # 모델 구조 정의하기
+    model = tf.keras.Sequential() --> 빈껍질 (컨테이너) 생성
+    model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=(3,3), strides=1, padding='same', activation='relu', input_shape=(28,28,1))) --> 은닉층 (컨볼루션 계층)
+    model.add(tf.keras.layers.MaxPool2D(pool_size=(2,2))) --> 은닉층 (POOLING LAYER)
+    model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=(3,3), strides=1, padding='same', activation='relu'))
+    model.add(tf.keras.layers.MaxPool2D(pool_size=(2,2)))
+    model.add(tf.keras.layers.Flatten())
+    # Add a Dense layer for classification
+    model.add(tf.keras.layers.Dense(units=10, activation='softmax'))
+
+    return model
+
+은닉층 --> 특징(FEATURE)을 추출하기 위한 LAYER(계층)
+
+ReLU 함수 --> 은닉층의 활성화 함수
+입력값  < 0 ==> 비활성화
+입력값 > 0 ==> 그대로 출력
+tf.keras.layers.Conv2D()
+
+MAXPool2D() 함수
+Maxpooling을 수행하는 함수
+
+tf.keras.layers.MaxPool2D()
+
+Flatten() 함수
+feature map을 1차원 배열로 변환하는 함수.
+
+tf.keras.layers.Flatten()
+
+Dense() 함수
+완전 연결 계층(fc layer)을 생성하는 함수
+
+tf.keras.layers.Dense()
+
+## 모델 컴파일(complie)
+ --> 손실함수 정의 + 최적화 함수 --> 모델완성
+
+손실 함수 ==> 예측과 정답을 비교하여 손실(loss) 계산
+** 오차라고 생각하면 될듯.
+
+최적화 함수 --> 가중치를 업데이트하여 손실을 최소화 하는 함수
+
+학습 --> 손실을 최소화 하는 가중치 획득 과정
+
+손실함수에는 2가지가 있다.
+이진분류 model_compile(loss='binary_crossentropy')
+
+다중분류 
+1. CategoricalCrossentropy() : label -> One-Hot encoding
+
+2. SparseCategoricalCrossentropy() : label -> 정수 인코딩
+
+- 평균 제곱 오차 (MSE)
+1. 회귀 문제에서 주로 사용
+2. 예측 값과 실제 값의 제곱 평균 오차 계산
+
+즉, 모델 컴파일은
+# loss='sparse_categorical_crossentropy' == 손실 기록 저장
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+최적화 함수 --> adam
+손실 함수는 sparse_categorical_crossentropy
+metrics = 정확도
+
+모델 학습>
+
+history = model.fit(
+    x=train_X,
+    y=train_y,
+    batch_size=240,
+    epochs=10,
+    validation_data = (val_X, val_y)
+)
+
+학습 결과 시각화
+### 검증용 데이터에 대한 시각화
+
+# 필요한 라이브러리 임폴트
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 직선 그래프 생성 - 검증용 데이터에 대한 정확도
+x=np.arange(1,11)
+y1= history.history.get('val_accuracy')
+plt.plot(x,y1)
+plt.xlabel("epoch")
+plt.ylabel("val_accuracy")
+plt.show()
+
+print('\n')
+
+# 직선 그래프 생성 - 검증용 데이터에 대한 손실
+x=np.arange(1,11)
+y2=history.history.get("val_loss")
+plt.plot(x,y2)
+plt.xlabel("epoch")
+plt.ylabel("val_loss")
+plt.show()
+
+성능 평가
+# 평가용 데이터 전체에 대한 성능 평가
+result = model.evaluate(x=X_test2, y=y_test, batch_size=100)
+print(f'평가용 데이터에 대한 성능 평가 : \n{result}')
+
+*** 머신러닝을 할 때에는 , fit함수 후, predict 함수를 이용했으나,
+여기서는 바로 evaluate함수를 이용하여 성능 평가
+***
