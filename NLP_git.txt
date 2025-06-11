@@ -1,0 +1,125 @@
+자연어 처리
+
+절차
+텍스트 데이터 수집 -> 전처리 -> 토큰화 -> 임베딩 -> 모델학습(목표)
+
+1. 텍스트 데이터 수집
+-AI HUB(공공 데이터)
+-오픈 API를 통한 수집
+- 웹 크롤링
+
+2. 텍스트 전처리
+- 불필요한 데이터를 처리
+- 문장 부호 등 특수문자 제거
+- 불용어(stopword) 제거 --> 예전엔 매우 중요했는데, 요새는 불용어도 다 학습하는 듯
+
+텍스트 데이터 구조
+말뭉치(file) -> 문서(document) -> 문단(paragraph) -> 문장(sentence) -> 단어(word) ->형태소
+
+형태소 -> 뜻을 가진 단어 중 더이상 쪼갤 수 없는 단위
+  
+불용어 차이
+ 영어 -> 단어
+ 한글 -> 조사, 어미 등 형태소
+
+3. 토큰화
+-> 텍스트를 의미 있는 단위(token)로 나누는 작업
+ 문장 토큰화 -> .,!>와 같은 문장부호를 기준으로 분할
+단어 토큰화 : 띄어쓰기 기준으로 분할
+형태소 토큰화 : 형태소 단위로 분할
+
+영어와 한글 토큰화 차이
+영어 -> 문장/ 띄어쓰기(단어) 기준
+한글 -> 문장/ 형태소(morpheme) 기준
+
+ *** NLTK라이브러리를 이용한 텍스트 토큰화(tokenization)
+<임폴트>
+import ntlk
+  - sent_tokenize() = 문장 토큰화
+  - word_tokenize() = 단어 토큰화
+
+< 추가 기능 다운로드 >
+ntlk.download('punkt_tab') -> 문장 부호 다운로드
+ntlk.download('stopwords') -> 불용어 다운로드
+
+불용어 생성 함수 호출 -> 영어 불용어 리스트 생성
+stopwords_list = nltk.corpus.stopwords.words('english')
+
+한글 형태소 분석기 (mecab, kiwi)
+
+1. mecab 형태소 분석기 ( 최근엔 잘 안쓰임)
+
+설치
+!pip install python-mecab-ko
+
+라이브러리 임폴트
+from mecab import MeCab
+
+클래스함수 호출
+mc = MeCab()
+
+기능 1 -> 형태소 분석
+morphs_mecab = mc.morphs(텍스트 data)
+
+기능 2 -> 형태소 분석 + 품사 태깅
+pos_mecab = mc.pos(텍스트 data)
+--> [(형태소1, 품사1), ....]
+
+기능 3 -> 형태소 분석 + 체언 추출
+nouns_mecab = mc.nouns(텍스트 data)
+
+2. kiwi 형태소 분석기 (지능)
+
+설치
+! pip install kiwipiepy
+
+함수 임폴트
+from kiwipiepy import Kiwi -> 분석기 임폴트
+from kiwipiepy.utils import Stopwords -> 불용어
+
+함수 호출 객체 생성
+kw = Kiwi()
+stop_words = Stopwords()
+
+불용어 추출
+
+속성 변수 -> stopwords -> set(집합 자료구조) -> list 구조 변환
+stopwords_list = list(stop_words.stopwords)
+-> 100개의 불용어 리스트화
+
+형태소 분석
+morphs_kiwi = kw.tokenize(텍스트 data)
+
+->  형태소 와 품사가 토큰 자료구조로 나옴.
+
+#### 보충 ####
+
+packing
+num = 10, 20, 30, 40
+ 출력 -> (10, 20, 30, 40) 튜플 자료구조
+
+unpacking
+num1, num2, num3, num4 = num
+-> 따로 추출가능
+
+#######
+
+형태소 분석 + 불용어 제거
+morph_kiwi2 = kw.tokenize(text = text_ko, stopwords=stop_words)
+
+# for문 이용 , 결과 확인
+for morph, pos, _, _ in morphs_kiwi2: -> unpacking
+    print(f'형태소 : {morph}, 품사 : {pos}')
+
+startswith라는 문자열 전용함수로 체언 추출
+형태소 분석 후 체언 (NNG, NNP, NNB, NR, NP)추출
+
+결과를 저장할 빈리스트 생성
+nouns_kiwi2 = []
+
+for morph, pos, _, _ in morph_kiwi2:
+    if pos.startswith("N"):
+       nouns_kiwi2.append(morph)
+
+-> 불용어가 제거된 형태소로 된 체언만 리스트화 성공
+
