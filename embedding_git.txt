@@ -1,0 +1,43 @@
+임베딩 : BoW
+-> 출현 빈도수로 임베딩
+
+1. CountVectorizer 모델
+
+# 필요 함수 임폴트
+ from sklearn.feature_extraction.text import CountVectorizer
+
+# 함수 호출, 임베딩 모델 생성
+ko_cv=CountVectorizer() -> 한글은 불용어 설정없음
+en_cv=CountVectorizer(stop_words='english')
+
+# fit()함수 호출 -> 토큰화 + 토큰별 단어 사전 생성
+ko_cv.fit(text)
+
+ko_vocab = ko_cv.vocabulary_
+-> text 데이터를 토대로 토큰화된 단어 사전생성..
+-> dict 구조임.
+
+# 임베딩 행렬 생성
+- transform(text).toarray()
+
+ko_matrix = ko_cv.transform(text).toarray()
+
+이제 영어는 이런 식으로 바로 가능한데,
+한글은 불용어 제거하려면 kiwi를 이용해야해서
+kiwipiepy 에서 Kiwi 임폴트하고
+kiwipiepy.utils 에서 Stopwords 임폴트 해야함.
+
+그 후, kw.tokenize(sent, stopwords=stop_words)로 토큰화..
+그 다음은 fit 함수쓰고, 단어 사전 생성 시키면 댐.
+
+오늘 배운거.
+텍스트 유사도 측정 - 코사인 유사도
+
+ 필요함수 임폴트
+from sklearn.metrics.pairwise import cosine_similarity
+
+sim = cosine_similarity(ko_matrix)
+
+아까 마지막에 만든 임베딩 행렬을 집어넣으면 유사도 완성.
+1 에 가까울수록 유사
+-1 은 정반대
