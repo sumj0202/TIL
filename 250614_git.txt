@@ -1,0 +1,55 @@
+git 연습용 reposit (train) 따로 만들어놓음.
+diabetes 에 대한 project 진행중
+
+1. CountVectorizer 함수와 Cosine_Similarity 함수를 이용하여 영화 추천시스템 구현
+ - 특정 컬럼(영화)의 코사인 유사도 --> 크기 순으로 정렬(내림 차순)
+    loaded.df.loc[:,"영화 제목"]               sort_values(ascending=False)
+
+ - 줄거리가 유사한 영화 n개 추천하는 함수 구현
+ def top_n_recommend(k, title) :
+      if title in loaded_df.columns:
+          top_n = loaded_df.loc[:, title].sort_values(ascending=False).iloc[1:k+1]
+          return top_n
+      else :
+           print("존재하지 않는 영화 제목이오니, 확인 후 다시 입력을 해주세요")
+
+추천 함수 실행 (top_n+recommend())
+
+매개 변수 값 설정
+ num = 10
+ name = "영화 제목"
+ 
+ # 함수 호출
+top_n_recommend(k=num, title=name)
+
+-> print(top_n_recommend)
+
+임베딩 : word2vec
+! pip install gensim kiwipiepy numpy==1.25.2 (설치)
+
+-> gensim 라이브러리는 텍스트 데이터를 벡터로 변환하는데 필요한 기능들을 제공해주는
+대표적 라이브러리
+
+ 개념 - 주변에 사용된 이웃 단어가 비슷한 단어들이 비슷한 숫자를 갖도록 함.
+
+   -> 문맥적으로 비슷한 단어가 쓰이면, 비슷한 뜻의 단어이다..
+라는 것을 전제로 하는것 같음.
+ 처음에 배웠던 임베딩은 그냥 독립된 개체를 학습시켰다면
+word2vec는 단어들의 관계(문맥)를 중점적으로 학습.
+
+ex) 나는 어제 사과를 먹었다.
+     나는 어제 피자를 먹었다.
+ 그럼 이제 사과와 피자가 임베딩 시 비슷한 값을 가진다.
+
+종류 -> CBOW 와 skip-gram
+
+&&& CBOW(Continuous Bag of Word)
+주변의 단어들을 입력 -> 중간에 있는 단어를 예측하는 모델
+
+ 모델 기본 구조 -> 얕은 신경망 (shallow neural network)
+
+학습을 통해 은닉층의 가중치를 업데이트
+ 입력층 과 은닉층의 관계 -> 행렬 곱
+ 은닉층과 출력층의 관계  => 행렬 곱
+
+학습결과 : 가중치 업데이트 -> 업데이트 된 가중치 -> 임베딩 벡터(단어 사전)
