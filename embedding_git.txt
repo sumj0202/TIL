@@ -41,3 +41,102 @@ sim = cosine_similarity(ko_matrix)
 아까 마지막에 만든 임베딩 행렬을 집어넣으면 유사도 완성.
 1 에 가까울수록 유사
 -1 은 정반대
+
+06/16 수업 정리
+임베딩 : word2vec
+! pip install gensim kiwipiepy numpy==1.25.2 (설치)
+
+-> gensim 라이브러리는 텍스트 데이터를 벡터로 변환하는데 필요한 기능들을 제공해주는
+대표적 라이브러리
+-> gensim이 옛날 모델이라, 넘파이를 구버전으로 맞추는 작업..
+
+ 개념 - 주변에 사용된 이웃 단어가 비슷한 단어들이 비슷한 숫자를 갖도록 함.
+0이 아닌 일정한 크기(은닉층의 뉴런의 수)의 실수로 표현하는 알고리즘.
+
+   -> 문맥적으로 비슷한 단어가 쓰이면, 비슷한 뜻의 단어이다..
+라는 것을 전제로 하는것 같음.
+ 처음에 배웠던 임베딩은 그냥 독립된 개체를 학습시켰다면
+word2vec는 단어들의 관계(문맥)를 중점적으로 학습.
+
+ex) 나는 어제 사과를 먹었다.
+     나는 어제 피자를 먹었다.
+ 그럼 이제 사과와 피자가 임베딩 시 비슷한 값을 가진다.
+
+종류 -> CBOW 와 skip-gram
+
+&&& CBOW(Continuous Bag of Word)
+주변의 단어들을 입력 -> 중간에 있는 단어를 예측하는 모델
+
+ 모델 기본 구조 -> 얕은 신경망 (shallow neural network)
+
+학습을 통해 은닉층의 가중치를 업데이트
+ 입력층 과 은닉층의 관계 -> 행렬 곱
+ 은닉층과 출력층의 관계  => 행렬 곱
+
+학습결과 : 가중치 업데이트 -> 업데이트 된 가중치 -> 임베딩 벡터(단어 사전)
+
+word2vec의 실습 목적 :
+임베딩
+ 학습 결과 : 가중치 update -> 학습이 완료된 가중치 -> 임베딩 벡터(단어 사전)
+
+--> 에 대한 논리를 익히기 위해서.
+
+토큰화까지는 우리가 해야함. 그 후, word2vec에 입력.
+1. 토큰화 리스트 생성
+2. word2vec에 입력
+
+매개변수 설명
+sentences -> 문장
+vector_size -> 은닉층 뉴런수 ( 기본값 100)
+window -> 예측할 때 반영하는 앞 뒤의 최대 단어수
+min_count -> 빈도가 적은 단어는 학습 안하는데, 그 빈도의 기준을 정함.
+sg=0 -> cbow모델 , sg=1 -> skip-gram모델
+
+skip-gram은 cbow와 반대로 중간에 있는 단어들로 주변의 단어들을 예측하는 모델
+
+CBOW모델을 이용한 임베딩 과정
+1. 단어 사전 생성
+2. 임베딩
+
+그런데, CBOW모델은 1번과 2번이 동시에 이루어진다고 보면됨.
+
+실습 과정
+1. 필요함수 임폴트
+from gensim.models import Word2Vec
+
+2. 모델 생성 함수 호출, 모델 생성
+cbow = Word2Vec(sentences=토큰화한 형태소의 리스트, vector_size=10, min_count=1, sg=0)
+
+skip-gram = Word2Vec(다 똑같,sg=1)
+
+### 생성된 단어(형태소) 사전과 임베딩 벡터 확인
+
+'''
+1. 단어 사전, 임베딩 벡터 저장 --> model.wv
+2. 단어 사전 : model.wv.key_to_index
+3. model.wv['형태소']를 통해 특정 단어(형태소)의 embedding vector를 확인할 수 있다
+4. model.wv.vectors 속성을 이용하여 생성된 단어(형태소) 사전의 전체 value(embedding vector)
+를 확인할 수 있다.
+wv = wordvector의 준말
+'''
+
+위의 사항을 참고하여.
+cbow_vocab = cbow.wv.key_to_index
+
+특정 단어의 임베딩 벡터
+-> embedding_cbow = cbow.wv['morph']
+
+전체 임베딩 벡터
+embeddings_cbow = cbow.wv.vectors
+
+skip-gram도 동일함.
+
+re ( 정규표현식)
+- regular expression
+파이썬의 내장 모듈
+문자열에서 특정 패턴을 찾거나, 매칭되는 문자열을 처리하는 강력하 ㄴ도구
+텍스트 데이터 전처리에서 주로 사용
+
+re.sub(pattern, repl, string) -> 텍스트에서 패턴과 일치하는 부분을 다른 문자열로 대체
+         패턴     대체  문자열
+
