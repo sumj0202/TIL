@@ -97,3 +97,158 @@ max_len = 470
 # 자르고 붙이기(최신 토큰화 모델은 알아서 자르고 붙여줌)
 X_train_pad = tf.keras.utils.pad_sequences(sequences=X_train, maxlen=max_len)
 X_test_pad = tf.keras.utils.pad_sequences(sequences=X_test, maxlen=max_len)
+
+-
+# 6월 19일(목)
+
+### 영화 리뷰 감성 분석 모델의 분석 실습
+
+# Embedding(모델) - 은닉층
+'''
+매개변수 값 설정 -> 임베딩 생성 함수 호출, 모델 생성 -> 입력 데이터 생성 -> 출력 데이터 생성
+'''
+# 매개 변수의 값 설정
+vocab_size =10000
+embedding_size = 32
+max_len = 470
+
+# 임베딩 모델 호출 및 생성
+embedding_layer = tf.keras.layers.Embedding(
+    input_dim = vocab_size,
+    output_dim = embedding_size,
+    input_shape = (max_len,)
+)
+
+# 입력 데이터 생성
+input = X_train_pad
+
+# 입력 결과물 확인
+out_embedding = embedding_layer(input)
+
+#RNN(모델) - 은닉층
+'''
+생성 함수 호출, 모델 생성 -> 입력 결과물 확인
+'''
+rnn_layer = tf.keras.layers.SimpleRNN(
+    units=16
+)
+# -> units은 (1,n)값으로 n의 수를 결정, 즉 임베딩 행렬에서 열의 값을 정함.
+
+# 입력 결과물 확인
+input = out_embedding
+output_rnn = rnn_layer(input)
+
+# Dense(모델) - 출력층 (입력의 총합 -> sigmoid함수 -> 확률로 변환)
+'''
+모델 생성 함수 호출 및 생성 -> 입력의 결과 확인 -> 예측값 저장
+'''
+
+# 모델 생성 및 호출
+dense_layer = tf.keras.layers.Dense(
+    units=1,
+    activation='sigmoid'
+)
+
+# 입력의 결과물 확인
+input=output_rnn
+output_dense=dense_layer(input)
+
+# 정답 레이블로 변환
+labels=[]
+for output in output_dense:
+    if output>=0.5:
+        labels.append(1)
+    else:
+        labels.append(0)
+
+# --> embedding layer, RNN layer , Dense layer는 변수가 연속적으로 연결(종속)적임
+# --> 전 단계의 output이 그다음 단계의 input이 되는걸 기억
+
+# 영화 리뷰 감성 분석 모델 생성
+'''
+모델 구성 순서
+1.Ssequential()를 이용하여 모델 케이스 생성하기
+2. Embedding layer 추가하기
+3. RNN layer 추가하기
+4. Dense layer 추가하기
+'''
+
+# 매개변수값 설정
+vocab_size = 10000
+embedding_size = 32
+max_len = 470
+
+# 기본 모델 생성
+model = tf.keras.Sequential()
+
+# Embedding layer 추가
+model.add(tf.keras.layers.Embedding(
+    input_dim = vocab_size,
+    output_dim = embedding_size,
+    input_shape = (max_len,)
+))
+
+# SimpleRNN layer 추가
+model.add(tf.keras.SimpleRNN(units=16))
+
+# Dense layer 추가
+model.add(tf.keras.Dense(units=1, activation='sigmoid'))
+
+# 생성된 모델 구조 확인
+model.summary()
+
+### 모델 compile
+'''
+손실 함수, 최적화 함수, 평가지표 설정
+'''
+model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
+
+### 모델 학습
+
+'''
+조기 종료 조건 설정 (early_stopping)
+모델 저장 조건 설정 (checkpoint)
+학습 진행 (fit)
+'''
+
+# 조기 종료 조건 설정
+early_stop = tf.keras.callbacks.EarlyStopping(
+    monitor = 'val_loss',
+    patience = 3,
+    restore_best_weights=True
+)
+
+# 모델 저장 조건 설정
+file_path='저장경로/파일이름.keras'
+checkpoint= tf.keras.callbacks.ModelCheckpoint(
+    filepath=file_path,
+    monitor='val_loss'
+    save_best_only=True
+)
+
+# 학습 진행
+model.fit(
+    x=X_train_pad,
+    y=y_train,
+    batch_size=200,
+    validation_split=0.2,
+    epochs=10000000,
+    callbacks=[early_stop,checkpoint]
+)
+
+# 모델 평가
+'''
+checkpoint로 인해 저장된 최적의 모델 불러오기 -> 모델 평가(evaluate)
+'''
+
+# 모델 불러오기
+loaded_model=tf.keras.models.load_model(filepath=file_path)
+
+# 모델 평가
+result = loaded_model.evaluate(
+    x=X_test_pad,
+    y=y_test,
+    batch_size=250
+)
+
+# LSTM모델은 오늘 배운 RNN layer를 lstm 으로 바꾼것뿐 나머지 똑같음 조금 단점을 개선한 정도
