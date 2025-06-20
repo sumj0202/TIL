@@ -252,3 +252,108 @@ result = loaded_model.evaluate(
 )
 
 # LSTM모델은 오늘 배운 RNN layer를 lstm 으로 바꾼것뿐 나머지 똑같음 조금 단점을 개선한 정도
+
+# 6월 20일 (수)
+
+# 미국 기준 금리 예측 (LSTM 모델)
+import pandas as pd
+import numpy as np
+import pandas_datareader.data as pdr
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import root_mean_squared_error
+import tensorflow as tf
+import datetime
+import random
+
+# FRED 데이터 다운로드를 위한 시작, 종료 시점 설정
+start_date = datetime.datetime(2000,1,1)
+end_date = datetime.datetime.now()
+
+df_interest = pdr.DateReader('FEDFUNDS', 'fred', start_date, end_date)
+print(df_interst)
+# -> 350rows, 1col , non-null , 누락 없음
+
+# 데이터 스케일링 모델 생성(전처리)
+scaler = MinMaxScaler()
+
+scaled_data = scaler.fit_transform(df_interest)
+
+# 전처리(2)
+# 입력 데이터(시퀀스 데이터) 생성 함수 정의
+def create_sequences(data, seq_length):
+    '''
+    ### 1. 함수의 기능 : 시계열 데이터를 LSTM 입력 형식의 시퀀스로 변환
+    ### 2. 매개 변수 DATA : 스케일링된 시계열 데이터(2차원 배열)
+    ### 3. 매개 변수 seq_length : 시간 간격(몇 개의 과거 데이터를 학습할 것인가?)
+    ### 4. 결과 값 : X(입력 시퀀스), y(실제 금리)
+
+    '''
+
+    #결과 저장용 리스트 생성
+    X_data = []
+    y_data = []
+
+    # 시간 간격 적용하여 입력 시퀀스 데이터 생성 (12개월)
+    for i in range(len(data) - seq_length):
+        X_data.append(data[i:i+seq_length,:])
+        y_data.append(data[i+seq_length,:])
+
+    return np.array(X_data), np.array(y_data)
+
+# 시간 간격 설정
+sequence_length = 12
+
+# 함수 실행, 입력 데이터 생성
+
+X_data, y_data = create_sequences(data=scaled_data, seq_length=sequence_length)
+
+# 학습용 / 평가용 데이터 분할
+
+'''
+### 데이터 분할의 규칙 : 시간 순서 유지 (random X) --> 과거 데이터(학습용80%) + 최근 (평가용 20%)
+'''
+
+train_size=(int(len(X_data)*0.8))
+
+X_train = X_data[:train_size,:,:]
+X_test = X_data[train_size:,:,:]
+y_train = y_data[:train_size,:,:]
+y_test=y_data[train_size:,:,:]
+
+# 모델 구성
+'''
+모델 구성 순서
+1.Sequential()를 이용하여 모델 케이스 생성하기
+2. LSTM layer 추가하기
+3. Dense layer 추가하가
+'''
+
+# 모델 케이스 생성
+model = tf.keras.Sequential()
+
+# LSTM layer 추가
+model.add(tf.keras.layers.LSTM(units=64,
+                               return_sequences=True,
+                               input_shape=(12,1)))
+
+model.add(tf,keras.layers.LSTM(units=64))
+
+### -> layer를 늘린다고 꼭 더 정교해지지는 않음.
+
+# Dense layer 추가 --> 금리 1개 예측
+model.add(tf.keras.layers.Dense(units=1))
+
+# 모델 구조 확인
+model.summary
+
+'''
+unit -> 뉴런 수라고 생각, unit이 클수록 더 다양하게 패턴을 학습, 대신 속도가 느려짐
+그리고 너무많으면 overfitting 이라고, 오히려 성능 down
+
+input_shape는 (12,1)인데 12는 학습의 주기라고 생각하면 되고, 1은 학습한 정보의 개수임.
+즉, 12일간 하나의 금리를 input햇으니 12,1인거임. 30일 간격이었으면 30,1 인 거.
+
+어제 배웠던 RNN과 똑같은데, 좀 더 성능이 개선된 거임.
+'''
