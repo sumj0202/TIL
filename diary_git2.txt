@@ -1,0 +1,16 @@
+6월 23일 (월)
+오늘은 미국 금리 예측 마무리 실습을 했다.
+새로 알게된 파라미터랑 명령어가 있음.
+먼저 MinMaxScaler 함수에서 scaler.inverse_transform()을 하면 단어 뜻그대로 스케일 하기전
+원상태로 복구된다.
+
+그리고 plt.legend() -> 그래프의 선의 이름을 알려줌. 참조?
+plt.gird(True) -> 이건 원래 false가 기본값이라 true하면 그래프에 격자생김.
+
+마지막에 미래예측 하는법은, fit으로 학습되고 정답 데이터에서 predict로 평가한 모델을 준비
+model.predict(input_data)
+-> input_data는 원본 데이터에서 학습시킨 데이터의 길이만큼해서 변수 저장
+-> 거기에 reshape로 형태를 (1,sequence_length,1) -> 학습된 데이터와 똑같은 형태로만듬
+
+이렇게 만든 input_data를 model.predict()에 넣고 돌리면 됨
+그리고 inverse_transform으로 sclae되기 전 값으로 복원시키면 끝~
